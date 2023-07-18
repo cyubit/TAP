@@ -7,8 +7,10 @@ let count = 0;
 addEventListener('click', () => {
     count += 1;
     document.getElementById('counter').innerHTML = count;
+    socket.emit('updateScore', count)
 })
 
 socket.on('update', (players) => {
     console.log(players)
 })
+
