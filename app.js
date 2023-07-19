@@ -24,7 +24,6 @@ io.on('connection', (socket) => {
     type: ''
   }
   io.emit('reset', socket.id)
-  io.emit('playerTable', players)
 
   // io.emit('update', players)
   console.log(players)
@@ -46,23 +45,32 @@ io.on('connection', (socket) => {
     players[socket.id].name = hostName
     players[socket.id].type = 'host'
 
-    roomCode = Math.floor(Math.random() * 10000)
+    roomCode = Math.floor(Math.random() * 1000)
     clientRooms[socket.id] = roomCode
     socket.emit('displayGameCode', roomCode)
 
     socket.join(roomCode)
+    io.emit('playerTable', players)
 
   })
 
-  socket.on('join', (playerName) => {
+  socket.on('join', (playerName, inputtedCode) => {
     console.log(playerName)
+    console.log(inputtedCode)
     players[socket.id].name = playerName
     players[socket.id].type = 'player'
 
-    const room = io.sockets.adapter.rooms[roomCode]
-    clientRooms[socket.id] = roomCode
-    socket.join(roomCode)
+    const room = io.sockets.adapter.rooms[inputtedCode]
+    let allUsers;
+    if (room) {
+      allUsers = room.sockets
+    }
+    console.log(allUsers)
+    clientRooms[socket.id] = inputtedCode
+    socket.join(inputtedCode)
     io.emit('playerTable', players)
+    // console.log(room)
+    // console.log(clientRooms)
   })
 
 });

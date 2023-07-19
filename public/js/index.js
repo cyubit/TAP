@@ -15,7 +15,7 @@ const hostButton = document.getElementById('hostButton')
 const joinButton = document.getElementById('joinButton')
 
 hostButton.addEventListener('click', () => {
-    if (!nameCheck(document.getElementById('gamename').value)) { return }
+    // if (!nameCheck(document.getElementById('gamename').value)) { return }
     socket.emit("newGame")
     const name = document.getElementById('gamename').value
     socket.emit('host', name)
@@ -80,4 +80,5 @@ function buildTable(data) {
                   </tr>`
         table.innerHTML += row
     }
+    console.log(table)
   }
