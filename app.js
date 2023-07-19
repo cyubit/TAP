@@ -14,15 +14,19 @@ app.get('/', (req, res) => {
 });
 
 const players = {}
+const clientRooms = {}
 
 io.on('connection', (socket) => {
   console.log('a user connected');
   players[socket.id] = {
     clicks: 0,
-    name: ''
+    name: '',
+    type: ''
   }
+  io.emit('reset', socket.id)
+  io.emit('playerTable', players)
 
-  io.emit('update', players)
+  // io.emit('update', players)
   console.log(players)
 
   socket.on('updateScore', (count) => {
@@ -36,9 +40,33 @@ io.on('connection', (socket) => {
     delete players[socket.id]
     console.log('user disconnected');
   })
+
+  socket.on('host', (hostName) => {
+    console.log(hostName)
+    players[socket.id].name = hostName
+    players[socket.id].type = 'host'
+
+    roomCode = Math.floor(Math.random() * 10000)
+    clientRooms[socket.id] = roomCode
+    socket.emit('displayGameCode', roomCode)
+
+    socket.join(roomCode)
+
+  })
+
+  socket.on('join', (playerName) => {
+    console.log(playerName)
+    players[socket.id].name = playerName
+    players[socket.id].type = 'player'
+
+    const room = io.sockets.adapter.rooms[roomCode]
+    clientRooms[socket.id] = roomCode
+    socket.join(roomCode)
+    io.emit('playerTable', players)
+  })
+
 });
 
 server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
-

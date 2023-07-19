@@ -14,18 +14,20 @@ h1 {
 }
 
 
-#gamename {
+.input {
     width: 15rem;
-    height: 5rem;
+    height: 4.5rem;
     font-size: 5rem;
     border-color: black;
     border-radius: 1.1rem;
+    margin-bottom: 0.5rem;
+    margin-top: 0rem;
 }
 
 button {
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
     width: 15rem;
-    height: 10rem;
+    height: 7rem;
     font-size: 5rem;
     border-radius: 1.1rem;
 }
@@ -44,6 +46,13 @@ button {
  
  ::-webkit-input-placeholder {
     text-align: center;
+ }
+
+ #waitingRoom {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
  }
 
 @media (min-width: 768px) {

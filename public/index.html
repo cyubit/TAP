@@ -12,15 +12,52 @@
 
 </head>
 
+<style>
+    #homepage {
+        display: none
+    }
+    #waitingRoomHost {
+        display: none
+    }
+    #waitingRoomPlayer {
+        display: none
+    }
+    #gameScreen {
+        display: none
+    }
+    #roomCode {
+        display: none
+    }
+</style>
+
 <body>
     <div id="homepage" class="prevent-select">
         <h1>TAP</h1>
         <form>
-            <input type="text" id="gamename" name="gamename" placeholder="name"><br>
-            <button>Host</button>
-            <button>Join</button>
-            <p id="counter"></p>
+            <input class="input" type="text" id="gamename" name="gamename" placeholder="name">
+            <input class="input" type="text" id="gamecode" name="gamecode" placeholder="code">
+            <br>
+            <button id="hostButton" type="button">Host</button>
+            <button id="joinButton" type="button">Join</button><br>
+            
+            
         </form>
+    </div>
+
+    <div id="waitingRoomHost">
+        <h2>Game Code: <span id="roomCode"></span></h2>
+        <h2>Players:</h2>
+        <tbody id="playerTable"></tbody>
+        <button id="startButton" type="button">Start</button>
+    </div>
+
+    <div id="waitingRoomPlayer">
+        <h3>Waiting For Host To Start The Game...</h3>
+    </div>
+
+    <div id="gameScreen">
+        <h1>TAP</h1>
+        <h1 id="counter"></h1>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
