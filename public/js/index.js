@@ -54,11 +54,11 @@ socket.on('reset', (id) => {
         waitingroomHost.style.display = 'none'
         gameScreen.style.display = 'none'
         displayCode.style.display = 'none'
-    }
+    } 
 })
 
 socket.on('playerTable', (players) => {
-    buildTable(players)
+    buildTable(players[socket.id].name)
 })
 
 
@@ -70,15 +70,12 @@ function nameCheck(inputtedName) {
     return true
 }
 
-function buildTable(data) {
+function buildTable(playerName) {
+    console.log(playerName)
     var table = document.getElementById('playerTable')
-  
-    for (var i = 0; i < data.length; i++) {
-        var row = `<tr>
-                        <td>${data[i].name}</td>
-                        <td>${data[i].clicks}</td>
-                  </tr>`
-        table.innerHTML += row
-    }
-    console.log(table)
+
+    const div = document.createElement('div')
+    div.innerHTML = playerName
+    table.append(div)
+    
   }

@@ -1,3 +1,5 @@
+const {instrument} = require('@socket.io/admin-ui');
+
 const express = require('express');
 const app = express();
 
@@ -18,6 +20,7 @@ const clientRooms = {}
 
 io.on('connection', (socket) => {
   console.log('a user connected');
+
   players[socket.id] = {
     clicks: 0,
     name: '',
@@ -50,7 +53,6 @@ io.on('connection', (socket) => {
     socket.emit('displayGameCode', roomCode)
 
     socket.join(roomCode)
-    io.emit('playerTable', players)
 
   })
 
@@ -68,7 +70,8 @@ io.on('connection', (socket) => {
     console.log(allUsers)
     clientRooms[socket.id] = inputtedCode
     socket.join(inputtedCode)
-    io.emit('playerTable', players)
+
+    socket.to(inputtedCode).emit('playerTable', players)
     // console.log(room)
     // console.log(clientRooms)
   })
@@ -78,3 +81,5 @@ io.on('connection', (socket) => {
 server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+instrument(io, { auth: false });
