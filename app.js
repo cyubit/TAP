@@ -1,22 +1,31 @@
 const {instrument} = require('@socket.io/admin-ui');
 
-const express = require('express');
-const app = express();
+const express = require('express')
+const app = express()
 
-const http = require('http');
-const server = http.createServer(app);
-const { Server } = require("socket.io");
+// socket.io setup
+const http = require('http')
+const server = http.createServer(app)
+const { Server } = require('socket.io')
+const io = new Server(server, {
+  pingInterval: 1000, 
+  pingTimeout: 3000, 
+  cors: {
+    origin: ["http://localhost:3000", "http://localhost:8080", "https://admin.socket.io"],
+    credentials: true
+  }
+});
+
 const port = 3000
-const io = new Server(server, {pingInterval: 1000, pingTimeout: 3000});
 
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
+  res.sendFile(__dirname + '/index.html')
+})
 
 const players = {}
-const clientRooms = {}
+const rooms = {}
 
 io.on('connection', (socket) => {
   console.log('a user connected');
@@ -48,12 +57,14 @@ io.on('connection', (socket) => {
     players[socket.id].name = hostName
     players[socket.id].type = 'host'
 
-    roomCode = Math.floor(Math.random() * 1000)
-    clientRooms[socket.id] = roomCode
+    roomCode = makeid(3)
+    rooms[roomCode] = {
+      host: hostName,
+      players: []
+    }
+
     socket.emit('displayGameCode', roomCode)
-
     socket.join(roomCode)
-
   })
 
   socket.on('join', (playerName, inputtedCode) => {
@@ -62,24 +73,38 @@ io.on('connection', (socket) => {
     players[socket.id].name = playerName
     players[socket.id].type = 'player'
 
-    const room = io.sockets.adapter.rooms[inputtedCode]
-    let allUsers;
-    if (room) {
-      allUsers = room.sockets
-    }
-    console.log(allUsers)
-    clientRooms[socket.id] = inputtedCode
+    // const room = io.sockets.adapter.rooms[inputtedCode]
+    // let allUsers;
+    // if (room) {
+    //   allUsers = room.sockets
+    // }
+    // console.log(allUsers)
+    if (!rooms[inputtedCode]) {
+      console.log('room does not exist')
+      return
+    } 
     socket.join(inputtedCode)
 
     socket.to(inputtedCode).emit('playerTable', players)
     // console.log(room)
-    // console.log(clientRooms)
   })
 
 });
 
 server.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`TAP listening on port ${port}`);
 });
 
 instrument(io, { auth: false });
+
+function makeid(length) {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+}

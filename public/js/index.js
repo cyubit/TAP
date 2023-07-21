@@ -1,6 +1,4 @@
-// 1. Detect clicks on the page
-// 2. For each click, increment the counter variable by 1
-// 3. Update the counter paragraph with the new value
+const socket = io();
 
 let count = 0;
 let active = false;
@@ -16,7 +14,6 @@ const joinButton = document.getElementById('joinButton')
 
 hostButton.addEventListener('click', () => {
     // if (!nameCheck(document.getElementById('gamename').value)) { return }
-    socket.emit("newGame")
     const name = document.getElementById('gamename').value
     socket.emit('host', name)
     homepage.style.display = 'none'
@@ -60,7 +57,6 @@ socket.on('reset', (id) => {
 socket.on('playerTable', (players) => {
     buildTable(players[socket.id].name)
 })
-
 
 function nameCheck(inputtedName) {
     if (!inputtedName) {
