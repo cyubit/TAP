@@ -2,6 +2,7 @@ const {instrument} = require('@socket.io/admin-ui');
 
 const express = require('express')
 const app = express()
+const Timer = require("easytimer.js").Timer;
 
 // socket.io setup
 const http = require('http')
@@ -33,7 +34,8 @@ io.on('connection', (socket) => {
   players[socket.id] = {
     clicks: 0,
     name: '',
-    type: ''
+    type: '',
+    room: ''
   }
   io.emit('reset', socket.id)
 
@@ -43,7 +45,19 @@ io.on('connection', (socket) => {
   socket.on('updateScore', (count) => {
     players[socket.id].clicks = count
     console.log(players)
-    // io.emit('update', players)
+    io.emit('updateScoretable', players)
+  })
+
+  socket.on('startGame', () => {
+    const timerInstance = new Timer();
+    io.emit('startGame', players)
+    timerInstance.start({countdown: true, startValues: {seconds: 15}});
+    timerInstance.addEventListener('secondsUpdated', function (e) {
+      io.emit('timer', timerInstance.getTimeValues().seconds, players)
+    });
+    timerInstance.addEventListener('targetAchieved', function (e) {
+      io.emit('endGame', players)
+    });
   })
 
   socket.on('disconnect', (reason) => {
@@ -53,15 +67,16 @@ io.on('connection', (socket) => {
   })
 
   socket.on('host', (hostName) => {
-    console.log(hostName)
+    // console.log(hostName)
     players[socket.id].name = hostName
     players[socket.id].type = 'host'
 
     roomCode = makeid(3)
     rooms[roomCode] = {
-      host: hostName,
-      players: []
+      host: socket.id,
+      participants: []
     }
+    rooms[roomCode].participants.push(socket.id)
 
     socket.emit('displayGameCode', roomCode)
     socket.join(roomCode)
@@ -72,6 +87,7 @@ io.on('connection', (socket) => {
     console.log(inputtedCode)
     players[socket.id].name = playerName
     players[socket.id].type = 'player'
+    players[socket.id].room = inputtedCode
 
     // const room = io.sockets.adapter.rooms[inputtedCode]
     // let allUsers;
@@ -83,9 +99,13 @@ io.on('connection', (socket) => {
       console.log('room does not exist')
       return
     } 
+    rooms[inputtedCode].participants.push(socket.id)
     socket.join(inputtedCode)
 
-    socket.to(inputtedCode).emit('playerTable', players)
+
+    // rooms[inputtedCode].participants
+
+    socket.to(inputtedCode).emit('playerTable', socket.id, players)
     // console.log(room)
   })
 

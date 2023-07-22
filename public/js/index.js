@@ -11,6 +11,7 @@ const displayCode = document.getElementById('roomCode')
 
 const hostButton = document.getElementById('hostButton')
 const joinButton = document.getElementById('joinButton')
+const startButton = document.getElementById('startButton')
 
 hostButton.addEventListener('click', () => {
     // if (!nameCheck(document.getElementById('gamename').value)) { return }
@@ -34,8 +35,15 @@ joinButton.addEventListener('click', () => {
     waitingroomPlayer.style.display = 'block'
 })
 
+startButton.addEventListener('click', () => {
+    active = false
+    waitingroomHost.style.display = 'none'
+    resultsScreen.style.display = 'block'
+    socket.emit('startGame')
+})
+
 addEventListener('click', () => {
-    // if (!active) { return }
+    if (!active) { return }
     count += 1;
     document.getElementById('counter').innerHTML = count;
     socket.emit('updateScore', count)
@@ -54,8 +62,44 @@ socket.on('reset', (id) => {
     } 
 })
 
-socket.on('playerTable', (players) => {
-    buildTable(players[socket.id].name)
+socket.on('playerTable', (roomPlayers, players) => {
+    buildTable(roomPlayers, players)
+})
+
+socket.on('startGame', (players) => {
+    if (players[socket.id].type == 'host') {
+        return
+    }
+    waitingroomPlayer.style.display = 'none'
+    gameScreen.style.display = 'block'
+    active = true
+})
+
+socket.on('timer', (seconds, players) => {
+    if (players[socket.id].type != 'host') {return}
+    document.getElementById('time').innerHTML = seconds;
+})
+
+socket.on('updateScoretable', (players) => {
+    let scoreTable = document.getElementById('resultsTable');
+
+    const newTable = document.createElement('tbody');
+    for (i in players) {
+        if (players[i].type == 'host') {
+            continue
+        }
+        const row = newTable.insertRow(0);
+        const cell1 = row.insertCell();
+        const cell2 = row.insertCell();
+        cell1.appendChild(document.createTextNode(players[i].name));
+        cell2.appendChild(document.createTextNode(players[i].clicks));
+    }
+
+    scoreTable.innerHTML = newTable.innerHTML
+})
+
+socket.on('endGame', (players) => {
+    active = false
 })
 
 function nameCheck(inputtedName) {
@@ -66,12 +110,9 @@ function nameCheck(inputtedName) {
     return true
 }
 
-function buildTable(playerName) {
-    console.log(playerName)
+function buildTable(roomPlayers, players) {
     var table = document.getElementById('playerTable')
-
     const div = document.createElement('div')
-    div.innerHTML = playerName
+    div.innerHTML = players[roomPlayers].name + ' - ' + players[roomPlayers].type
     table.append(div)
-    
-  }
+}

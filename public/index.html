@@ -24,6 +24,9 @@
     #roomCode {
         display: none
     }
+    #resultsScreen {
+        display: none
+    }
 </style>
 
 <body>
@@ -40,20 +43,32 @@
         </form>
     </div>
 
-    <div id="waitingRoomHost">
+    <div id="waitingRoomHost" class="prevent-select">
         <h2>Game Code: <span id="roomCode"></span></h2>
         <h2>Players:</h2>
         <div id="playerTable"></div>
         <button id="startButton" type="button">Start</button>
     </div>
 
-    <div id="waitingRoomPlayer">
+    <div id="waitingRoomPlayer" class="prevent-select">
         <h3>Waiting For Host To Start The Game...</h3>
     </div>
 
-    <div id="gameScreen">
+    <div id="gameScreen" class="prevent-select">
         <h1>TAP</h1>
         <h1 id="counter"></h1>
+    </div>
+
+    <div id="resultsScreen" class="prevent-select">
+        <h1>TAP</h1>
+        <h1 id="time"></h1>
+        <table>
+            <tr>
+                <th>Player</th>
+                <th>Score</th>
+            </tr>
+            <tbody id="resultsTable"></tbody>
+        </table>
     </div>
 
     <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
